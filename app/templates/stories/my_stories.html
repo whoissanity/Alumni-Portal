@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}My Success Stories — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-journal-check me-2 text-success"></i>My Submitted Success Stories</h2>
+    <p class="text-muted mb-0">Track the approval status of stories you have submitted.</p>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('stories.submit_story') }}" class="btn btn-duet-green">
+      <i class="bi bi-plus-circle me-1"></i>New Story
+    </a>
+  </div>
+</div>
+
+{% if stories %}
+<div class="row">
+  {% for story in stories %}
+    <div class="col-md-6 mb-4">
+      <div class="card card-duet shadow-sm h-100">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title fw-bold text-dark mb-0">{{ story.title }}</h5>
+            {% if story.is_published %}
+              <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Published</span>
+            {% else %}
+              <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>Pending Approval</span>
+            {% endif %}
+          </div>
+
+          <p class="text-muted small mb-3"><i class="bi bi-calendar3 me-1"></i>Submitted on {{ story.created_at.strftime('%B %d, %Y') }}</p>
+
+          <p class="card-text text-muted small flex-grow-1">{{ story.content | truncate(140) }}</p>
+
+          <div class="pt-3 border-top mt-auto text-end">
+            <a href="{{ url_for('stories.story_detail', story_id=story.id) }}" class="btn btn-sm btn-outline-success">
+              View Preview
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info text-center py-4">
+  <h5>You haven't submitted any stories yet.</h5>
+  <a href="{{ url_for('stories.submit_story') }}" class="btn btn-duet-green mt-2">Submit Your First Story</a>
+</div>
+{% endif %}
+{% endblock %}

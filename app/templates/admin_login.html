@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card card-duet card-duet-header-red shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">Admin Portal Login</h4>
+        <form method="POST" action="{{ url_for('admin.login') }}">
+          <div class="mb-3">
+            <label for="email" class="form-label">Admin Email Address</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+
+          <button type="submit" class="btn btn-duet-red w-100">Log In to Admin Panel</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

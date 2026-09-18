@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ other.username }} — DUET Alumni Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+  .chat-bubble-me {
+    background: var(--duet-green);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    max-width: 75%;
+    padding: 0.65rem 1.1rem;
+    margin-bottom: 0.3rem;
+    word-wrap: break-word;
+  }
+  .chat-bubble-other {
+    background: #e2e8f0;
+    color: var(--duet-dark);
+    border-radius: 18px 18px 18px 4px;
+    max-width: 75%;
+    padding: 0.65rem 1.1rem;
+    margin-bottom: 0.3rem;
+    word-wrap: break-word;
+  }
+  .chat-window {
+    height: 440px;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+  }
+  .chat-window::-webkit-scrollbar { width: 5px; }
+  .chat-window::-webkit-scrollbar-thumb { background: var(--duet-green); border-radius: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3 align-items-center">
+  <div class="col">
+    <a href="{{ url_for('messages.inbox') }}" class="btn btn-outline-success btn-sm me-2">
+      <i class="bi bi-arrow-left me-1"></i>Back to Inbox
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-9">
+    <div class="card card-duet card-duet-header-green shadow">
+
+      <!-- Chat Header -->
+      <div class="card-header d-flex align-items-center justify-content-between py-3 px-4" style="background:var(--duet-green-light);border-bottom:1px solid rgba(0,106,78,0.15);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+               style="width:45px;height:45px;font-size:1.2rem;background:var(--duet-green);flex-shrink:0;">
+            {{ other.username[0]|upper }}
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">
+              {% if other.role == 'alumni' and other.is_verified %}
+                <a href="{{ url_for('mentorship.alumni_public_profile', alumni_id=other.id) }}" class="text-success text-decoration-none">{{ other.username }}</a>
+              {% else %}
+                <a href="{{ url_for('messages.conversation', other_id=other.id) }}" class="text-dark text-decoration-none">{{ other.username }}</a>
+              {% endif %}
+            </h5>
+            <small class="text-muted text-capitalize">{{ other.role }}{% if other.current_job_title %} · {{ other.current_job_title }}{% endif %}{% if other.batch %} (Batch {{ other.batch }}){% endif %}</small>
+          </div>
+        </div>
+        {% if other.role == 'alumni' and other.is_verified %}
+          <a href="{{ url_for('mentorship.alumni_public_profile', alumni_id=other.id) }}" class="btn btn-sm btn-outline-success">
+            <i class="bi bi-person me-1"></i>View Profile
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Messages Stream -->
+      <div class="chat-window" id="chatWindow">
+        {% if thread %}
+          {% for msg in thread %}
+            {% if msg.sender_id == current_user.id %}
+              <div class="d-flex flex-column align-items-end mb-3">
+                <div class="chat-bubble-me shadow-sm">{{ msg.body }}</div>
+                <small class="text-muted pe-1" style="font-size:0.7rem;"><i class="bi bi-clock me-1"></i>{{ msg.sent_at.strftime('%b %d, %H:%M') }}</small>
+              </div>
+            {% else %}
+              <div class="d-flex flex-column align-items-start mb-3">
+                <div class="chat-bubble-other shadow-sm">{{ msg.body }}</div>
+                <small class="text-muted ps-1" style="font-size:0.7rem;"><i class="bi bi-clock me-1"></i>{{ msg.sent_at.strftime('%b %d, %H:%M') }}</small>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <div class="text-center text-muted my-auto py-5">
+            <i class="bi bi-chat-dots fs-1 d-block mb-2 text-success"></i>
+            <h5>Start the Conversation</h5>
+            <p class="small mb-0">Type your message below to begin chatting with {{ other.username }}.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Reply Form -->
+      <div class="card-footer bg-white p-3 border-top">
+        <form method="POST" action="{{ url_for('messages.send_message', other_id=other.id) }}" class="d-flex gap-2">
+          <input type="text" name="body" class="form-control" placeholder="Write a message to {{ other.username }}..." autocomplete="off" required autofocus>
+          <button type="submit" class="btn btn-duet-green px-4 flex-shrink-0">
+            <i class="bi bi-send-fill me-1"></i>Send
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Auto-scroll chat window to bottom initially
+  const chatWindow = document.getElementById('chatWindow');
+  if (chatWindow) {
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  let lastMessageCount = {{ thread|length }};
+
+  function pollConversation() {
+    fetch('/api/messages/{{ other.id }}/json')
+      .then(response => response.json())
+      .then(data => {
+        if (!data || !data.messages) return;
+        
+        // If message count has changed, update DOM
+        if (data.messages.length !== lastMessageCount) {
+          lastMessageCount = data.messages.length;
+          
+          if (data.messages.length === 0) {
+            chatWindow.innerHTML = `
+              <div class="text-center text-muted my-auto py-5">
+                <i class="bi bi-chat-dots fs-1 d-block mb-2 text-success"></i>
+                <h5>Start the Conversation</h5>
+                <p class="small mb-0">Type your message below to begin chatting with ${data.other.username}.</p>
+              </div>`;
+            return;
+          }
+
+          let html = '';
+          data.messages.forEach(msg => {
+            if (msg.is_me) {
+              html += `
+                <div class="d-flex flex-column align-items-end mb-3">
+                  <div class="chat-bubble-me shadow-sm">${msg.body}</div>
+                  <small class="text-muted pe-1" style="font-size:0.7rem;"><i class="bi bi-clock me-1"></i>${msg.sent_at}</small>
+                </div>`;
+            } else {
+              html += `
+                <div class="d-flex flex-column align-items-start mb-3">
+                  <div class="chat-bubble-other shadow-sm">${msg.body}</div>
+                  <small class="text-muted ps-1" style="font-size:0.7rem;"><i class="bi bi-clock me-1"></i>${msg.sent_at}</small>
+                </div>`;
+            }
+          });
+
+          chatWindow.innerHTML = html;
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+      })
+      .catch(err => console.error("Conversation polling error:", err));
+  }
+
+  // Poll conversation every 5 seconds
+  setInterval(pollConversation, 5000);
+</script>
+{% endblock %}

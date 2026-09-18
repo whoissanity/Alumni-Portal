@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Success Stories Moderation — DUET Alumni Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-journal-check me-2 text-danger"></i>Success Stories Moderation (FR-33)</h2>
+    <p class="text-muted mb-0">Review, approve, or reject alumni success story submissions before public publication.</p>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Dashboard
+    </a>
+  </div>
+</div>
+
+<!-- Pending Stories Section -->
+<div class="card card-duet shadow-sm mb-5">
+  <div class="card-header bg-white py-3 border-0">
+    <h5 class="mb-0 fw-bold text-dark">
+      <i class="bi bi-clock-history me-2 text-warning"></i>Pending Approval Queue ({{ pending_stories|length }})
+    </h5>
+  </div>
+  <div class="card-body p-0">
+    {% if pending_stories %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Submitted Title</th>
+              <th>Author</th>
+              <th>Date Submitted</th>
+              <th>Snippet</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for story in pending_stories %}
+              <tr>
+                <td>
+                  <strong class="text-dark d-block">{{ story.title }}</strong>
+                  <a href="{{ url_for('stories.story_detail', story_id=story.id) }}" class="small text-success text-decoration-none">
+                    Preview full text &rarr;
+                  </a>
+                </td>
+                <td>
+                  <span class="fw-semibold">{{ story.author.username }}</span>
+                  <span class="badge bg-light text-dark border ms-1">{{ story.author.role }}</span>
+                  {% if story.author.company %}
+                    <div class="small text-muted">{{ story.author.current_job_title }} at {{ story.author.company }}</div>
+                  {% endif %}
+                </td>
+                <td class="small text-muted">{{ story.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="small text-muted" style="max-width: 250px;">{{ story.content | truncate(80) }}</td>
+                <td class="text-end">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <form method="POST" action="{{ url_for('admin.approve_story', story_id=story.id) }}">
+                      <button type="submit" class="btn btn-sm btn-duet-green">
+                        <i class="bi bi-check-circle me-1"></i>Approve
+                      </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.reject_story', story_id=story.id) }}"
+                          onsubmit="return confirm('Reject and delete story \'{{ story.title }}\'?');">
+                      <button type="submit" class="btn btn-sm btn-duet-red">
+                        <i class="bi bi-trash me-1"></i>Reject
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-check2-all fs-2 text-success d-block mb-2"></i>
+        No success stories pending approval.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Published Stories Archive -->
+<div class="card card-duet shadow-sm">
+  <div class="card-header bg-white py-3 border-0">
+    <h5 class="mb-0 fw-bold text-dark">
+      <i class="bi bi-journal-bookmark me-2 text-success"></i>Published Stories Archive ({{ published_stories|length }})
+    </h5>
+  </div>
+  <div class="card-body p-0">
+    {% if published_stories %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Date</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for story in published_stories %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('stories.story_detail', story_id=story.id) }}" class="fw-semibold text-dark text-decoration-none">
+                    {{ story.title }}
+                  </a>
+                </td>
+                <td>{{ story.author.username }}</td>
+                <td class="small text-muted">{{ story.created_at.strftime('%Y-%m-%d') }}</td>
+                <td class="text-end">
+                  <form method="POST" action="{{ url_for('admin.reject_story', story_id=story.id) }}"
+                        onsubmit="return confirm('Remove published story \'{{ story.title }}\'?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash me-1"></i>Remove
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="p-4 text-center text-muted">No published stories yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

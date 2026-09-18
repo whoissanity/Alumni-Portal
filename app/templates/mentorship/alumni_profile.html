@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}{{ alumni.username }} — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+  <div class="col">
+    <a href="{{ url_for('jobs.list_jobs') }}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Back to Jobs
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-9">
+
+    <!-- Profile Card -->
+    <div class="card card-duet card-duet-header-green shadow mb-4">
+      <div class="card-body p-5">
+        <div class="d-flex align-items-center gap-4 mb-4">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+               style="width:80px;height:80px;font-size:2rem;background:var(--duet-green);flex-shrink:0;">
+            {{ alumni.username[0]|upper }}
+          </div>
+          <div>
+            <h3 class="mb-1">{{ alumni.username }}</h3>
+            {% if alumni.current_job_title %}
+              <p class="text-muted mb-0">
+                <i class="bi bi-briefcase me-1"></i>{{ alumni.current_job_title }}
+                {% if alumni.company %}at <strong>{{ alumni.company }}</strong>{% endif %}
+              </p>
+            {% endif %}
+            {% if alumni.department %}
+              <p class="text-muted mb-0"><i class="bi bi-building me-1"></i>{{ alumni.department }}</p>
+            {% endif %}
+          </div>
+          <div class="ms-auto text-end">
+            {% if alumni.batch %}
+              <span class="badge badge-duet-green fs-6 px-3 py-2">Batch {{ alumni.batch }}</span>
+            {% endif %}
+            <div class="mt-1">
+              <span class="badge badge-duet-green">Verified Alumni</span>
+            </div>
+          </div>
+        </div>
+
+        {% if alumni.bio %}
+        <div class="mb-4">
+          <h5 class="text-success"><i class="bi bi-person-lines-fill me-1"></i>About</h5>
+          <p class="text-muted" style="white-space:pre-wrap;">{{ alumni.bio }}</p>
+        </div>
+        {% endif %}
+
+        <hr>
+
+        <!-- Actions row -->
+        <div class="d-flex flex-wrap gap-3 mt-4">
+
+          {% if current_user.role == 'student' %}
+            <!-- Mentorship request -->
+            {% if existing_request and existing_request.status == 'pending' %}
+              <span class="btn btn-outline-secondary disabled">
+                <i class="bi bi-hourglass-split me-1"></i>Request Pending
+              </span>
+            {% elif existing_request and existing_request.status == 'accepted' %}
+              <a href="{{ url_for('messages.conversation', other_id=alumni.id) }}" class="btn btn-duet-green">
+                <i class="bi bi-chat-dots me-1"></i>Send Message
+              </a>
+              <span class="badge bg-success align-self-center fs-6 px-3 py-2">
+                <i class="bi bi-check-circle me-1"></i>Mentorship Accepted
+              </span>
+            {% elif existing_request and existing_request.status == 'rejected' %}
+              <span class="text-muted align-self-center small">
+                <i class="bi bi-x-circle text-danger me-1"></i>Previous request was declined. You may try again:
+              </span>
+              <!-- Fall through to send form below -->
+              <button class="btn btn-duet-green" data-bs-toggle="modal" data-bs-target="#requestModal">
+                <i class="bi bi-mortarboard me-1"></i>Request Mentorship Again
+              </button>
+            {% else %}
+              <button class="btn btn-duet-green" data-bs-toggle="modal" data-bs-target="#requestModal">
+                <i class="bi bi-mortarboard me-1"></i>Request Mentorship
+              </button>
+            {% endif %}
+            <a href="{{ url_for('messages.conversation', other_id=alumni.id) }}" class="btn btn-outline-success">
+              <i class="bi bi-chat-dots me-1"></i>Message
+            </a>
+
+          {% elif current_user.role == 'alumni' and current_user.id != alumni.id %}
+            <!-- Alumni can message each other -->
+            <a href="{{ url_for('messages.conversation', other_id=alumni.id) }}" class="btn btn-duet-green">
+              <i class="bi bi-chat-dots me-1"></i>Send Message
+            </a>
+
+          {% elif current_user.role == 'admin' %}
+            <!-- Admin ban button -->
+            {% if alumni.is_banned %}
+              <form method="POST" action="{{ url_for('admin.unban_user', user_id=alumni.id) }}">
+                <button type="submit" class="btn btn-outline-success">
+                  <i class="bi bi-shield-check me-1"></i>Unban User
+                </button>
+              </form>
+            {% else %}
+              <form method="POST" action="{{ url_for('admin.ban_user', user_id=alumni.id) }}"
+                    onsubmit="return confirm('Ban {{ alumni.username }}?');">
+                <button type="submit" class="btn btn-duet-red">
+                  <i class="bi bi-ban me-1"></i>Ban User
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs posted by this alumni -->
+    {% if jobs %}
+    <div class="card card-duet card-duet-header-red shadow">
+      <div class="card-body p-4">
+        <h5 class="text-danger mb-3"><i class="bi bi-briefcase me-2"></i>Posted Opportunities</h5>
+        {% for job in jobs %}
+        <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">{{ job.title }}</h6>
+            <small class="text-muted"><i class="bi bi-building me-1"></i>{{ job.company }} &mdash;
+              {% if job.job_type == 'job' %}
+                <span class="badge badge-duet-red">Job</span>
+              {% else %}
+                <span class="badge badge-duet-green">Internship</span>
+              {% endif %}
+              {% if job.location %} &mdash; {{ job.location }}{% endif %}
+            </small>
+          </div>
+          <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="btn btn-sm btn-outline-success ms-3">View</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Mentorship Request Modal -->
+{% if current_user.role == 'student' and (not existing_request or existing_request.status == 'rejected') %}
+<div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header" style="background:var(--duet-green);color:white;">
+        <h5 class="modal-title" id="requestModalLabel">
+          <i class="bi bi-mortarboard me-2"></i>Request Mentorship from {{ alumni.username }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('mentorship.send_request', alumni_id=alumni.id) }}">
+        <div class="modal-body">
+          <p class="text-muted small">Introduce yourself and explain what you're looking for from this mentor.</p>
+          <label for="message" class="form-label fw-semibold">Your Message</label>
+          <textarea class="form-control" id="message" name="message" rows="5"
+                    placeholder="Hi! I'm studying CSE at DUET. I'd love guidance on..." required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-duet-green">Send Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

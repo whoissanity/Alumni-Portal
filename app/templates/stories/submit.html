@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Success Story — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card card-duet card-duet-header-green shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="card-title text-success mb-2">
+          <i class="bi bi-pencil-square me-2"></i>Share Your Success Story
+        </h3>
+        <p class="text-muted mb-4">
+          Inspire DUET students by sharing your career progression, achievements, lessons learned, and advice for the future.
+          <span class="badge bg-warning text-dark ms-1">Requires Admin Approval</span>
+        </p>
+
+        <form method="POST" action="{{ url_for('stories.submit_story') }}">
+          <div class="mb-3">
+            <label for="title" class="form-label fw-bold">Story Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-lg" id="title" name="title" required
+                   placeholder="e.g. From DUET to Senior Staff Engineer at Silicon Valley" value="{{ title if title else '' }}">
+          </div>
+
+          <div class="mb-4">
+            <label for="content" class="form-label fw-bold">Your Story &amp; Advice <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="content" name="content" rows="10" required
+                      placeholder="Share your journey after graduating from DUET, key career milestones, challenges overcome, and guidance for current students...">{{ content if content else '' }}</textarea>
+            <div class="form-text text-muted">You can write formatting paragraphs. Markdown or standard line breaks are preserved.</div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('stories.list_stories') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-duet-green px-4">
+              <i class="bi bi-send me-1"></i>Submit for Review
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

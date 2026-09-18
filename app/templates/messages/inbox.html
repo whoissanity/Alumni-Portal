@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Messages — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-chat-dots me-2 text-success"></i>Messages</h2>
+    <p class="text-muted mb-0">Your direct conversations with alumni and students.</p>
+  </div>
+</div>
+
+{% if conversations %}
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <div class="card card-duet card-duet-header-green shadow-sm">
+        <div class="card-body p-0" id="inboxContainer">
+          {% for conv in conversations %}
+            {% set partner = conv.partner %}
+            {% set last_msg = conv.last_message %}
+            {% set unread_count = conv.unread_count %}
+            
+            <a href="{{ url_for('messages.conversation', other_id=partner.id) }}"
+               class="d-flex align-items-center gap-3 p-3 border-bottom text-decoration-none hover-bg"
+               style="transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+              <!-- Avatar -->
+              <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
+                   style="width:52px;height:52px;font-size:1.3rem;background:var(--duet-green);">
+                {{ partner.username[0]|upper }}
+              </div>
+              
+              <!-- Content -->
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                  <span class="fw-bold text-dark fs-6">{{ partner.username }}
+                    <span class="badge bg-light text-dark border ms-1 fw-normal text-capitalize">{{ partner.role }}</span>
+                  </span>
+                  {% if last_msg %}
+                    <small class="text-muted" style="font-size: 0.78rem;">
+                      <i class="bi bi-clock me-1"></i>{{ last_msg.sent_at.strftime('%b %d, %H:%M') }}
+                    </small>
+                  {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="text-muted small mb-0 text-truncate" style="max-width: 80%;">
+                    {% if last_msg %}
+                      {% if last_msg.sender_id == current_user.id %}
+                        <span class="fw-semibold text-secondary">You:</span>
+                      {% endif %}
+                      {{ last_msg.body }}
+                    {% else %}
+                      <em>No messages yet.</em>
+                    {% endif %}
+                  </p>
+                  
+                  {% if unread_count > 0 %}
+                    <span class="badge bg-danger rounded-pill px-2 py-1" style="font-size:0.75rem;">
+                      {{ unread_count }} new
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+              <i class="bi bi-chevron-right text-muted ms-2"></i>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card card-duet p-5 text-center text-muted shadow-sm">
+        <div class="fs-1 text-success mb-3"><i class="bi bi-chat-square-dots"></i></div>
+        <h4>No Conversations Yet</h4>
+        <p class="mb-3">
+          {% if current_user.role == 'student' %}
+            Connect with alumni mentors through the job board or mentorship requests to start chatting.
+          {% else %}
+            Connect with students or other alumni to exchange direct messages.
+          {% endif %}
+        </p>
+        <a href="{{ url_for('jobs.list_jobs') }}" class="btn btn-duet-green">
+          <i class="bi bi-briefcase me-1"></i>Browse Jobs
+        </a>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function pollInbox() {
+    fetch('/api/messages/inbox')
+      .then(response => response.json())
+      .then(data => {
+        if (!data || !data.conversations) return;
+        const container = document.getElementById('inboxContainer');
+        if (!container) return;
+        
+        let html = '';
+        data.conversations.forEach(conv => {
+          const unreadBadge = conv.unread_count > 0 
+            ? `<span class="badge bg-danger rounded-pill px-2 py-1" style="font-size:0.75rem;">${conv.unread_count} new</span>`
+            : '';
+          const senderPrefix = conv.last_sender_id === {{ current_user.id }} ? '<span class="fw-semibold text-secondary">You:</span> ' : '';
+          
+          html += `
+            <a href="${conv.conversation_url}"
+               class="d-flex align-items-center gap-3 p-3 border-bottom text-decoration-none hover-bg"
+               style="transition:background 0.2s;">
+              <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
+                   style="width:52px;height:52px;font-size:1.3rem;background:var(--duet-green);">
+                ${conv.initial}
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                  <span class="fw-bold text-dark fs-6">${conv.username}
+                    <span class="badge bg-light text-dark border ms-1 fw-normal text-capitalize">${conv.role}</span>
+                  </span>
+                  <small class="text-muted" style="font-size: 0.78rem;">
+                    <i class="bi bi-clock me-1"></i>${conv.sent_at}
+                  </small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="text-muted small mb-0 text-truncate" style="max-width: 80%;">
+                    ${senderPrefix}${conv.last_message}
+                  </p>
+                  ${unreadBadge}
+                </div>
+              </div>
+              <i class="bi bi-chevron-right text-muted ms-2"></i>
+            </a>
+          `;
+        });
+        if (html) container.innerHTML = html;
+      })
+      .catch(err => console.error("Inbox polling error:", err));
+  }
+
+  // Poll inbox every 5 seconds
+  setInterval(pollInbox, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Mentorship — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-mortarboard me-2 text-success"></i>
+      {% if view == 'student' %}My Mentorship Requests{% else %}Mentorship Requests from Students{% endif %}
+    </h2>
+    <p class="text-muted mb-0">
+      {% if view == 'student' %}
+        Requests you have sent to alumni mentors.
+      {% else %}
+        Review and respond to student requests for your guidance.
+      {% endif %}
+    </p>
+  </div>
+  {% if view == 'student' %}
+  <div class="col-auto">
+    <a href="{{ url_for('jobs.list_jobs') }}" class="btn btn-duet-green">
+      <i class="bi bi-search me-1"></i>Find Mentors via Job Board
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ===== PENDING ===== -->
+<div class="card card-duet card-duet-header-red shadow-sm mb-4">
+  <div class="card-body p-4">
+    <h5 class="mb-3"><i class="bi bi-hourglass-split me-2 text-danger"></i>Pending
+      <span class="badge bg-danger ms-1">{{ pending|length }}</span>
+    </h5>
+    {% if pending %}
+      {% for req in pending %}
+      <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-start">
+        <div>
+          {% if view == 'student' %}
+            <h6 class="mb-1">
+              <a href="{{ url_for('mentorship.alumni_public_profile', alumni_id=req.mentor.id) }}" class="text-success text-decoration-none">
+                {{ req.mentor.username }}
+              </a>
+              {% if req.mentor.batch %}<span class="badge bg-light text-dark border ms-1">Batch {{ req.mentor.batch }}</span>{% endif %}
+            </h6>
+            <p class="text-muted small mb-1">{{ req.mentor.current_job_title or '' }}{% if req.mentor.company %} at {{ req.mentor.company }}{% endif %}</p>
+          {% else %}
+            <h6 class="mb-1">From: <a href="{{ url_for('messages.conversation', other_id=req.student.id) }}" class="text-success fw-semibold text-decoration-none">{{ req.student.username }}</a>
+              {% if req.student.batch %}<span class="badge bg-light text-dark border ms-1">Batch {{ req.student.batch }}</span>{% endif %}
+            </h6>
+            <p class="text-muted small mb-1">{{ req.student.email }}</p>
+          {% endif %}
+          <div class="bg-light rounded p-2 mt-2" style="font-size:0.9rem;max-width:500px;">
+            <i class="bi bi-chat-quote me-1 text-muted"></i><em>{{ req.message }}</em>
+          </div>
+          <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ req.created_at.strftime('%b %d, %Y') }}</small>
+        </div>
+        {% if view == 'alumni' %}
+        <div class="d-flex gap-2 ms-3 mt-1 flex-shrink-0">
+          <form method="POST" action="{{ url_for('mentorship.respond', req_id=req.id) }}">
+            <input type="hidden" name="action" value="accept">
+            <button type="submit" class="btn btn-sm btn-duet-green"><i class="bi bi-check-circle me-1"></i>Accept</button>
+          </form>
+          <form method="POST" action="{{ url_for('mentorship.respond', req_id=req.id) }}">
+            <input type="hidden" name="action" value="decline">
+            <button type="submit" class="btn btn-sm btn-duet-red"><i class="bi bi-x-circle me-1"></i>Decline</button>
+          </form>
+        </div>
+        {% else %}
+        <span class="badge bg-warning text-dark ms-3 align-self-start">Awaiting Response</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted mb-0"><i class="bi bi-inbox me-1"></i>No pending requests.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ===== ACCEPTED ===== -->
+<div class="card card-duet card-duet-header-green shadow-sm mb-4">
+  <div class="card-body p-4">
+    <h5 class="mb-3"><i class="bi bi-check-circle me-2 text-success"></i>Active / Accepted
+      <span class="badge bg-success ms-1">{{ accepted|length }}</span>
+    </h5>
+    {% if accepted %}
+      {% for req in accepted %}
+      <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          {% if view == 'student' %}
+            <h6 class="mb-0">
+              <a href="{{ url_for('mentorship.alumni_public_profile', alumni_id=req.mentor.id) }}" class="text-success text-decoration-none">
+                {{ req.mentor.username }}
+              </a>
+              {% if req.mentor.batch %}<span class="badge bg-light text-dark border ms-1">Batch {{ req.mentor.batch }}</span>{% endif %}
+            </h6>
+            <small class="text-muted">{{ req.mentor.current_job_title or '' }}{% if req.mentor.company %} at {{ req.mentor.company }}{% endif %}</small>
+          {% else %}
+            <h6 class="mb-0"><a href="{{ url_for('messages.conversation', other_id=req.student.id) }}" class="text-success fw-semibold text-decoration-none">{{ req.student.username }}</a>
+              {% if req.student.batch %}<span class="badge bg-light text-dark border ms-1">Batch {{ req.student.batch }}</span>{% endif %}
+            </h6>
+            <small class="text-muted">{{ req.student.email }}</small>
+          {% endif %}
+        </div>
+        {% if view == 'student' %}
+          <a href="{{ url_for('messages.conversation', other_id=req.mentor.id) }}" class="btn btn-sm btn-duet-green">
+            <i class="bi bi-chat-dots me-1"></i>Message
+          </a>
+        {% else %}
+          <a href="{{ url_for('messages.conversation', other_id=req.student.id) }}" class="btn btn-sm btn-duet-green">
+            <i class="bi bi-chat-dots me-1"></i>Message
+          </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted mb-0"><i class="bi bi-inbox me-1"></i>No accepted requests yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ===== PAST / DECLINED ===== -->
+{% if rejected %}
+<div class="card card-duet shadow-sm mb-4">
+  <div class="card-body p-4">
+    <h5 class="mb-3 text-muted"><i class="bi bi-x-circle me-2"></i>Declined
+      <span class="badge bg-secondary ms-1">{{ rejected|length }}</span>
+    </h5>
+    {% for req in rejected %}
+    <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-center opacity-75">
+      <div>
+        {% if view == 'student' %}
+          <h6 class="mb-0 text-muted"><a href="{{ url_for('mentorship.alumni_public_profile', alumni_id=req.mentor.id) }}" class="text-secondary text-decoration-none">{{ req.mentor.username }}</a></h6>
+        {% else %}
+          <h6 class="mb-0 text-muted"><a href="{{ url_for('messages.conversation', other_id=req.student.id) }}" class="text-secondary text-decoration-none">{{ req.student.username }}</a></h6>
+        {% endif %}
+        <small class="text-muted">{{ req.created_at.strftime('%b %d, %Y') }}</small>
+      </div>
+      <span class="badge bg-secondary">Declined</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+Flask==3.1.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-Bcrypt==1.0.4
+Flask-Mail==0.10.0
+python-dotenv==1.0.1
+google-genai==2.24.0
+python-docx==1.1.0
+pypdf==5.1.0

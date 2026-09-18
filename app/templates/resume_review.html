@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Review Results — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card card-duet shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">Resume Review Results</h4>
+        
+        <!-- AI Generated Badge -->
+        <div class="text-center mb-4">
+          <span class="badge bg-info bg-opacity-10 text-info border border-info">
+            <i class="bi bi-robot me-1"></i>AI-Generated — Automated Suggestion
+          </span>
+        </div>
+        
+        <!-- Score -->
+        <div class="row mb-4">
+          <div class="col-md-6 mx-auto">
+            <div class="card text-center border-0 shadow-sm">
+              <div class="card-body">
+                <h5 class="text-muted mb-2">Overall Score</h5>
+                <div class="display-1 fw-bold" style="color: {% if score >= 70 %}#198754{% elif score >= 40 %}#ffc107{% else %}#dc3545{% endif %}">
+                  {{ score }}
+                </div>
+                <p class="text-muted">
+                  {% if score >= 70 %}
+                    Excellent work! Your resume is well-formatted and ATS-friendly.
+                  {% elif score >= 40 %}
+                    Reasonable, but there's room for improvement in formatting and content.
+                  {% else %}
+                    Your resume needs significant revision for both formatting and content.
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Feedback Sections -->
+        <div class="row">
+          <!-- Formatting Feedback -->
+          <div class="col-md-4 mb-3">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <i class="bi bi-file-earmark-text me-2"></i>Formatting
+              </div>
+              <div class="card-body">
+                <p class="text-start">{{ formatting_feedback }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Content Feedback -->
+          <div class="col-md-4 mb-3">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <i class="bi bi-journal-text me-2"></i>Content
+              </div>
+              <div class="card-body">
+                <p class="text-start">{{ content_feedback }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ATS Feedback -->
+          <div class="col-md-4 mb-3">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <i class="bi bi-activity me-2"></i>ATS-Friendliness
+              </div>
+              <div class="card-body">
+                <p class="text-start">{{ ats_feedback }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional Tips -->
+        <div class="mt-4 p-3 bg-light rounded">
+          <h6 class="fw-semibold mb-2">
+            <i class="bi bi-lightbulb me-1"></i>Tips for Improvement
+          </h6>
+          <ul class="mb-0 small text-muted">
+            <li>Use action verbs to describe your achievements</li>
+            <li>Keep formatting consistent throughout</li>
+            <li>Tailor your resume to each job application</li>
+            <li>Avoid tables and graphics for ATS compatibility</li>
+            <li>Maintain a consistent date format</li>
+          </ul>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="mt-4 text-center">
+          <a href="{{ url_for('profile.profile') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

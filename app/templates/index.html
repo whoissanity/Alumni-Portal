@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Home — DUET Alumni & Career Portal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section fade-in-up">
+  <div class="container hero-content">
+    <div class="row align-items-center">
+      <div class="col-lg-8 text-center text-lg-start">
+        <h1 class="display-4 fw-extrabold mb-3">DUET Alumni Network</h1>
+        <p class="lead mb-4 fs-4 text-light-50">
+          Connecting graduates and students of the Computer Science & Engineering department at Dhaka University of Engineering & Technology.
+        </p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('jobs.list_jobs') }}" class="btn btn-duet-red btn-lg px-4 py-2">
+              <i class="bi bi-briefcase-fill me-2"></i>Explore Job Board
+            </a>
+            <a href="{{ url_for('profile.profile') }}" class="btn btn-outline-light btn-lg px-4 py-2">
+              <i class="bi bi-person-fill me-2"></i>My Profile
+            </a>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-duet-red btn-lg px-4 py-2">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-4 py-2">
+              <i class="bi bi-person-plus-fill me-2"></i>Register
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-4 text-center d-none d-lg-block">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="img-fluid hero-logo" alt="DUET Gear Logo">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-4 mb-5 fade-in-up" style="animation-delay: 0.1s;">
+  <div class="col-md-3 col-6">
+    <div class="stat-card">
+      <div class="stat-number">{{ verified_alumni_count }}+</div>
+      <div class="stat-label">Verified Alumni</div>
+    </div>
+  </div>
+  <div class="col-md-3 col-6">
+    <div class="stat-card">
+      <div class="stat-number">{{ active_job_count }}+</div>
+      <div class="stat-label">Active Job Posts</div>
+    </div>
+  </div>
+  <div class="col-md-3 col-6">
+    <div class="stat-card">
+      <div class="stat-number">{{ batch_count }}+</div>
+      <div class="stat-label">CSE Batches</div>
+    </div>
+  </div>
+  <div class="col-md-3 col-6">
+    <div class="stat-card">
+      <div class="stat-number">100%</div>
+      <div class="stat-label">DUET Pride</div>
+    </div>
+  </div>
+</div>
+
+<!-- Features Section -->
+<div class="row g-4 mb-5 fade-in-up" style="animation-delay: 0.2s;">
+  <div class="col-lg-4">
+    <div class="card card-duet card-duet-header-red h-100 p-4">
+      <div class="card-body">
+        <div class="fs-1 text-danger mb-3">
+          <i class="bi bi-briefcase"></i>
+        </div>
+        <h4 class="card-title mb-3">Career Opportunities</h4>
+        <p class="card-text text-muted">
+          Browse and apply for exclusive job and internship postings, or post a new vacancy if you are a verified alumni looking to hire.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-duet card-duet-header-green h-100 p-4">
+      <div class="card-body">
+        <div class="fs-1 text-success mb-3">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h4 class="card-title mb-3">Verified Alumni</h4>
+        <p class="card-text text-muted">
+          We maintain academic integrity by ensuring all alumni are manually verified by department administrators before granting posting rights.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-duet card-duet-header-red h-100 p-4">
+      <div class="card-body">
+        <div class="fs-1 text-danger mb-3">
+          <i class="bi bi-people"></i>
+        </div>
+        <h4 class="card-title mb-3">Mentorship</h4>
+        <p class="card-text text-muted">
+          Enable student-alumni interactions, resume reviews, and professional career advice within a specialized engineering community.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

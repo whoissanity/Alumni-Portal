@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card card-duet card-duet-header-green shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">My Profile</h4>
+        <form method="POST" action="{{ url_for('profile.profile') }}" enctype="multipart/form-data">
+          
+          <div class="mb-3">
+            <label class="form-label text-muted">Name</label>
+            <p class="form-control-plaintext">{{ current_user.username }}</p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted">Email</label>
+            <p class="form-control-plaintext">{{ current_user.email }}</p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted">Role</label>
+            <p class="form-control-plaintext text-capitalize">{{ current_user.role }}</p>
+          </div>
+
+          <hr>
+          
+          <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <textarea class="form-control" id="bio" name="bio" rows="3">{{ current_user.bio or '' }}</textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="department" class="form-label">Department</label>
+              <select class="form-select" id="department" name="department">
+                <option value="">Select Department</option>
+                {% set dept_options = ['CSE', 'CE', 'MME', 'TE', 'EEE'] %}
+                {% if current_user.department and current_user.department not in dept_options %}
+                  <option value="{{ current_user.department }}" selected>{{ current_user.department }} (Legacy)</option>
+                {% endif %}
+                {% for d in dept_options %}
+                  <option value="{{ d }}" {% if current_user.department == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="batch" class="form-label">Batch / Graduation Year</label>
+              <input type="text" class="form-control" id="batch" name="batch" value="{{ current_user.batch or '' }}">
+            </div>
+          </div>
+
+          {% if current_user.role == 'alumni' %}
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="current_job_title" class="form-label">Current Job Title</label>
+              <input type="text" class="form-control" id="current_job_title" name="current_job_title" value="{{ current_user.current_job_title or '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="company" class="form-label">Company</label>
+              <input type="text" class="form-control" id="company" name="company" value="{{ current_user.company or '' }}">
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="resume" class="form-label">Resume (PDF/DOCX max 5MB)</label>
+            {% if current_user.resume_filename %}
+              <div class="mb-2">
+                <span class="badge bg-secondary">Current file: {{ current_user.resume_filename }}</span>
+              </div>
+            {% endif %}
+            <input class="form-control" type="file" id="resume" name="resume" accept=".pdf,.docx">
+          </div>
+
+          <button type="submit" class="btn btn-duet-green w-100">Update Profile</button>
+        </form>
+
+        <!-- AI Resume Review Button (shown only if the student has uploaded a resume) -->
+        {% if current_user.resume_filename %}
+          <div class="mt-3 mb-3">
+            <form method="POST" action="{{ url_for('resume_review.review_resume') }}" class="d-inline">
+              <button type="submit" id="resume-review-btn" class="btn btn-duet-green">
+                <span id="resume-review-btn-text">
+                  <i class="bi bi-robot me-1"></i>Get AI Resume Review
+                </span>
+              </button>
+            </form>
+            <small class="text-muted ms-2">
+              Analyze your resume for ATS compatibility and improvement suggestions.
+            </small>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var form = document.querySelector('form[action="{{ url_for('resume_review.review_resume') }}"]');
+    if (form) {
+      form.addEventListener('submit', function () {
+        var btn = document.getElementById('resume-review-btn');
+        if (btn) {
+          btn.disabled = true;
+          var text = document.getElementById('resume-review-btn-text');
+          if (text) {
+            text.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Analyzing...';
+          }
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}

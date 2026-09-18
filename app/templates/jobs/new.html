@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card card-duet card-duet-header-green shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">Post a New Job or Internship</h4>
+        <form method="POST" action="{{ url_for('jobs.new_job') }}">
+          
+          <div class="mb-3">
+            <label for="title" class="form-label">Job Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="title" name="title" required value="{{ title if title else '' }}">
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="company" class="form-label">Company</label>
+              <input type="text" class="form-control" id="company" name="company" value="{{ company if company else '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="location" class="form-label">Location</label>
+              <input type="text" class="form-control" id="location" name="location" value="{{ location if location else '' }}" placeholder="e.g. Remote, New York">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="job_type" class="form-label">Type <span class="text-danger">*</span></label>
+            <select class="form-select" id="job_type" name="job_type" required>
+              <option value="job" {% if job_type == 'job' %}selected{% endif %}>Job</option>
+              <option value="internship" {% if job_type == 'internship' %}selected{% endif %}>Internship</option>
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="description" name="description" rows="6" required>{{ description if description else '' }}</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-duet-green w-100">Post Job</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

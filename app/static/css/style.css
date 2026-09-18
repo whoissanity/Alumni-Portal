@@ -1,0 +1,270 @@
+/* DUET Alumni Network & Career Portal Custom Stylesheet */
+/* Google Fonts loaded via <link> in base.html */
+
+:root {
+    --duet-green: #006a4e;
+    --duet-green-hover: #004d38;
+    --duet-red: #d62828;
+    --duet-red-hover: #b3001e;
+    --duet-white: #ffffff;
+    --duet-light: #f8fafc;
+    --duet-dark: #0f172a;
+    --duet-muted: #64748b;
+    --duet-green-light: #e8f5e9;
+    --duet-red-light: #ffebee;
+    --card-shadow: 0 10px 25px -5px rgba(0, 106, 78, 0.1);
+    --hover-shadow: 0 20px 35px -10px rgba(214, 40, 40, 0.15);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--duet-light);
+    color: var(--duet-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Custom Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Navbar Custom Styling */
+.navbar-duet {
+    background: var(--duet-green) !important;
+    border-bottom: 4px solid var(--duet-red);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 0.6rem 0;
+}
+
+.navbar-duet .navbar-brand {
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--duet-white) !important;
+    white-space: nowrap;
+}
+
+.navbar-duet .navbar-brand img {
+    height: 38px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+.navbar-duet .nav-link {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.4rem 0.75rem !important;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.navbar-duet .navbar-nav {
+    gap: 2px;
+}
+
+@media (min-width: 1200px) {
+    .navbar-duet .navbar-nav {
+        flex-wrap: nowrap;
+    }
+}
+
+.navbar-duet .nav-link:hover {
+    color: var(--duet-white) !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Buttons */
+.btn-duet-green {
+    background-color: var(--duet-green);
+    color: var(--duet-white);
+    border: none;
+    font-weight: 600;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-duet-green:hover {
+    background-color: var(--duet-green-hover);
+    color: var(--duet-white);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 106, 78, 0.3);
+}
+
+.btn-duet-red {
+    background-color: var(--duet-red);
+    color: var(--duet-white);
+    border: none;
+    font-weight: 600;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-duet-red:hover {
+    background-color: var(--duet-red-hover);
+    color: var(--duet-white);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(214, 40, 40, 0.3);
+}
+
+/* Custom Cards */
+.card-duet {
+    border: none;
+    border-radius: 16px;
+    background-color: var(--duet-white);
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    overflow: hidden;
+}
+
+.card-duet:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+}
+
+.card-duet-header-red {
+    border-top: 5px solid var(--duet-red);
+}
+
+.card-duet-header-green {
+    border-top: 5px solid var(--duet-green);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(0, 106, 78, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%), 
+                url('/static/images/entrance.png') center/cover no-repeat;
+    color: var(--duet-white);
+    padding: 6rem 0;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -15px rgba(0, 106, 78, 0.25);
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(214, 40, 40, 0.3) 0%, transparent 70%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-logo {
+    max-height: 120px;
+    animation: rotateGear 20s linear infinite;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    will-change: transform;
+}
+
+@keyframes rotateGear {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Stats Section */
+.stat-card {
+    background: var(--duet-white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 106, 78, 0.05);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--duet-green);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--duet-green);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-weight: 600;
+    color: var(--duet-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.5rem;
+}
+
+/* Footer Custom Styling */
+footer {
+    background-color: var(--duet-dark) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-top: 6px solid var(--duet-green);
+    padding: 3rem 0 1.5rem 0 !important;
+    margin-top: 5rem;
+}
+
+footer a {
+    color: var(--duet-white);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+footer a:hover {
+    color: var(--duet-red);
+}
+
+/* Forms & Inputs styling */
+.form-control:focus, .form-select:focus {
+    border-color: var(--duet-green);
+    box-shadow: 0 0 0 0.25rem rgba(0, 106, 78, 0.25);
+}
+
+/* Badges styling */
+.badge-duet-green {
+    background-color: var(--duet-green-light);
+    color: var(--duet-green);
+}
+
+.badge-duet-red {
+    background-color: var(--duet-red-light);
+    color: var(--duet-red);
+}
+
+/* Animations */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    
+}

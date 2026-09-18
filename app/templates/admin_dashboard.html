@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-speedometer2 me-2 text-danger"></i>Admin Dashboard</h2>
+    <p class="text-muted mb-0">Platform overview, activity analytics, user management, and moderation hub.</p>
+  </div>
+  <div class="col-auto d-flex gap-2">
+    <a href="{{ url_for('admin.user_list') }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-people-fill me-1"></i>Manage Users
+    </a>
+    <a href="{{ url_for('admin.pending_alumni') }}" class="btn btn-outline-warning btn-sm">
+      <i class="bi bi-person-check-fill me-1"></i>Pending Alumni ({{ pending_alumni_count }})
+    </a>
+  </div>
+</div>
+
+<!-- FR-35: Platform Summary Stat Cards -->
+<div class="row mb-4">
+  <!-- Students Card -->
+  <div class="col-md-6 col-lg-2-4 mb-3">
+    <div class="card card-duet border-0 shadow-sm text-center p-3 h-100 bg-light">
+      <div class="stat-icon text-primary mb-2 fs-2"><i class="bi bi-mortarboard-fill"></i></div>
+      <h3 class="fw-bold mb-0 text-dark">{{ students_count }}</h3>
+      <span class="text-muted small fw-semibold">Students</span>
+    </div>
+  </div>
+
+  <!-- Verified Alumni Card -->
+  <div class="col-md-6 col-lg-2-4 mb-3">
+    <div class="card card-duet border-0 shadow-sm text-center p-3 h-100 bg-light">
+      <div class="stat-icon text-success mb-2 fs-2"><i class="bi bi-patch-check-fill"></i></div>
+      <h3 class="fw-bold mb-0 text-dark">{{ verified_alumni_count }}</h3>
+      <span class="text-muted small fw-semibold">Verified Alumni</span>
+    </div>
+  </div>
+
+  <!-- Pending Alumni Card -->
+  <div class="col-md-6 col-lg-2-4 mb-3">
+    <div class="card card-duet border-0 shadow-sm text-center p-3 h-100 bg-light">
+      <div class="stat-icon text-warning mb-2 fs-2"><i class="bi bi-person-exclamation"></i></div>
+      <h3 class="fw-bold mb-0 text-dark">{{ pending_alumni_count }}</h3>
+      <span class="text-muted small fw-semibold">Pending Verification</span>
+    </div>
+  </div>
+
+  <!-- Active Jobs Card -->
+  <div class="col-md-6 col-lg-2-4 mb-3">
+    <div class="card card-duet border-0 shadow-sm text-center p-3 h-100 bg-light">
+      <div class="stat-icon text-info mb-2 fs-2"><i class="bi bi-briefcase-fill"></i></div>
+      <h3 class="fw-bold mb-0 text-dark">{{ active_jobs_count }}</h3>
+      <span class="text-muted small fw-semibold">Active Jobs</span>
+    </div>
+  </div>
+
+  <!-- Pending Stories Card -->
+  <div class="col-md-6 col-lg-2-4 mb-3">
+    <div class="card card-duet border-0 shadow-sm text-center p-3 h-100 bg-light">
+      <div class="stat-icon text-danger mb-2 fs-2"><i class="bi bi-journal-check"></i></div>
+      <h3 class="fw-bold mb-0 text-dark">{{ pending_stories_count }}</h3>
+      <span class="text-muted small fw-semibold">Pending Stories</span>
+    </div>
+  </div>
+</div>
+
+<!-- FR-37: Activity Report Generator -->
+<div class="card card-duet shadow-sm mb-4">
+  <div class="card-header bg-white py-3 border-0 d-flex align-items-center justify-content-between">
+    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Platform Activity Report (FR-37)</h5>
+    <span class="badge bg-primary text-white">Date Range Analytics</span>
+  </div>
+  <div class="card-body p-4">
+    <!-- Date Range Filter Form -->
+    <form method="GET" action="{{ url_for('admin.dashboard') }}" class="row g-3 align-items-end mb-4">
+      <div class="col-md-4">
+        <label for="from_date" class="form-label small fw-bold text-muted">From Date</label>
+        <input type="date" class="form-control" id="from_date" name="from_date" value="{{ from_date }}">
+      </div>
+      <div class="col-md-4">
+        <label for="to_date" class="form-label small fw-bold text-muted">To Date</label>
+        <input type="date" class="form-control" id="to_date" name="to_date" value="{{ to_date }}">
+      </div>
+      <div class="col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-duet-green w-100">
+          <i class="bi bi-funnel-fill me-1"></i>Generate Report
+        </button>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary" title="Reset to Last 30 Days">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </a>
+      </div>
+    </form>
+
+    <!-- Activity Report Summary Table -->
+    <div class="table-responsive border rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Activity Category</th>
+            <th>Description</th>
+            <th class="text-center">Count ({{ from_date }} to {{ to_date }})</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><i class="bi bi-person-plus text-primary me-2"></i><strong>New Students Registered</strong></td>
+            <td class="text-muted small">New student accounts created in range</td>
+            <td class="text-center fw-bold text-primary">{{ report_data.new_students }}</td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-patch-check text-success me-2"></i><strong>New Alumni Registered</strong></td>
+            <td class="text-muted small">New alumni signups in range</td>
+            <td class="text-center fw-bold text-success">{{ report_data.new_alumni }}</td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-briefcase text-info me-2"></i><strong>New Job Postings</strong></td>
+            <td class="text-muted small">Jobs and internships published in range</td>
+            <td class="text-center fw-bold text-info">{{ report_data.new_jobs }}</td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-people text-warning me-2"></i><strong>Mentorship Requests</strong></td>
+            <td class="text-muted small">New student mentorship requests sent</td>
+            <td class="text-center fw-bold text-warning">{{ report_data.new_mentorship_requests }}</td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-calendar-event text-danger me-2"></i><strong>New Events</strong></td>
+            <td class="text-muted small">Events created in range</td>
+            <td class="text-center fw-bold text-danger">{{ report_data.new_events }}</td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-journal-text text-secondary me-2"></i><strong>Success Stories Submitted</strong></td>
+            <td class="text-muted small">Alumni stories submitted for review</td>
+            <td class="text-center fw-bold text-secondary">{{ report_data.new_stories }}</td>
+          </tr>
+          <tr class="table-active">
+            <td colspan="2" class="fw-bold">Total Platform Actions</td>
+            <td class="text-center fw-bold text-dark fs-5">{{ report_data.total_activity }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Admin Navigation Grid -->
+<div class="row">
+  <div class="col-md-3 mb-3">
+    <div class="card card-duet h-100 p-3 shadow-sm border-start border-4 border-primary">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="fw-bold mb-0">User Management</h6>
+        <i class="bi bi-people fs-4 text-primary"></i>
+      </div>
+      <p class="text-muted small mb-3">Search, filter, role status, ban/unban, delete users.</p>
+      <a href="{{ url_for('admin.user_list') }}" class="btn btn-sm btn-outline-primary mt-auto">Go to Users &rarr;</a>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card card-duet h-100 p-3 shadow-sm border-start border-4 border-warning">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="fw-bold mb-0">Alumni Approvals</h6>
+        <i class="bi bi-shield-check fs-4 text-warning"></i>
+      </div>
+      <p class="text-muted small mb-3">Review &amp; verify pending alumni registration requests.</p>
+      <a href="{{ url_for('admin.pending_alumni') }}" class="btn btn-sm btn-outline-warning mt-auto">View Pending ({{ pending_alumni_count }}) &rarr;</a>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card card-duet h-100 p-3 shadow-sm border-start border-4 border-danger">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="fw-bold mb-0">Success Stories</h6>
+        <i class="bi bi-journal-check fs-4 text-danger"></i>
+      </div>
+      <p class="text-muted small mb-3">Moderate &amp; approve alumni success stories for publication.</p>
+      <a href="{{ url_for('admin.pending_stories') }}" class="btn btn-sm btn-outline-danger mt-auto">Review Stories ({{ pending_stories_count }}) &rarr;</a>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card card-duet h-100 p-3 shadow-sm border-start border-4 border-info">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="fw-bold mb-0">Student Directory</h6>
+        <i class="bi bi-person-lines-fill fs-4 text-info"></i>
+      </div>
+      <p class="text-muted small mb-3">Browse, filter by department &amp; batch, and manage students.</p>
+      <a href="{{ url_for('admin.student_directory') }}" class="btn btn-sm btn-outline-info mt-auto">Student Directory &rarr;</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

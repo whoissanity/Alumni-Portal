@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Success Stories — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-journal-bookmark-fill me-2 text-success"></i>Alumni Success Stories</h2>
+    <p class="text-muted mb-0">Inspiring journeys, achievements, and advice from DUET alumni worldwide.</p>
+  </div>
+  {% if current_user.is_authenticated and current_user.role == 'alumni' and current_user.is_verified %}
+    <div class="col-auto">
+      <a href="{{ url_for('stories.submit_story') }}" class="btn btn-duet-green">
+        <i class="bi bi-journal-plus me-1"></i>Share Your Story
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+{% if stories %}
+<div class="row">
+  {% for story in stories %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card card-duet card-duet-header-green h-100 shadow-sm">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                 style="width:48px;height:48px;font-size:1.2rem;">
+              {{ story.author.username[0]|upper }}
+            </div>
+            <div class="min-w-0">
+              <h6 class="mb-0 text-truncate">
+                {% if story.author.role == 'alumni' and story.author.is_verified %}
+                  <a href="{{ url_for('mentorship.alumni_public_profile', alumni_id=story.author.id) }}" class="text-success fw-bold text-decoration-none">
+                    {{ story.author.username }}
+                  </a>
+                {% else %}
+                  <span class="fw-bold text-dark">{{ story.author.username }}</span>
+                {% endif %}
+              </h6>
+              {% if story.author.current_job_title %}
+                <p class="text-muted small mb-0 text-truncate">
+                  {{ story.author.current_job_title }}{% if story.author.company %} at {{ story.author.company }}{% endif %}
+                </p>
+              {% elif story.author.batch %}
+                <span class="badge bg-light text-dark border">Batch {{ story.author.batch }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <h5 class="card-title text-dark fw-bold mb-2">
+            <a href="{{ url_for('stories.story_detail', story_id=story.id) }}" class="text-dark text-decoration-none hover-green">
+              {{ story.title }}
+            </a>
+          </h5>
+
+          <p class="card-text text-muted small mb-4 flex-grow-1" style="line-height:1.6;">
+            {{ story.content | truncate(150) }}
+          </p>
+
+          <div class="pt-3 border-top d-flex align-items-center justify-content-between text-muted small mt-auto">
+            <span><i class="bi bi-calendar3 me-1"></i>{{ story.created_at.strftime('%B %d, %Y') }}</span>
+            <a href="{{ url_for('stories.story_detail', story_id=story.id) }}" class="text-success fw-semibold text-decoration-none">
+              Read Story &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination Controls -->
+{% if pagination and pagination.pages > 1 %}
+<nav class="d-flex justify-content-center mt-4">
+  <ul class="pagination">
+    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('stories.list_stories', page=pagination.prev_num) }}">Previous</a>
+    </li>
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+          <a class="page-link" href="{{ url_for('stories.list_stories', page=p) }}">{{ p }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+      {% endif %}}
+    {% endfor %}
+    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('stories.list_stories', page=pagination.next_num) }}">Next</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="row">
+  <div class="col">
+    <div class="alert alert-info text-center py-5 shadow-sm">
+      <i class="bi bi-journal-x fs-1 d-block mb-3 text-secondary"></i>
+      <h4>No success stories published yet</h4>
+      <p class="text-muted mb-3">Be the first alumni to inspire current students and fellow graduates!</p>
+      {% if current_user.is_authenticated and current_user.role == 'alumni' and current_user.is_verified %}
+        <a href="{{ url_for('stories.submit_story') }}" class="btn btn-duet-green">
+          <i class="bi bi-pencil-square me-1"></i>Write Your Story
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

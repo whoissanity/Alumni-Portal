@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2><i class="bi bi-bell me-2 text-success"></i>Notifications</h2>
+    <p class="text-muted mb-0">Stay updated on your mentorship requests and job application status.</p>
+  </div>
+  {% if notifications %}
+  <div class="col-auto">
+    <form method="POST" action="{{ url_for('notifications.mark_all_read') }}">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-check-all me-1"></i>Mark all as read
+      </button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card card-duet card-duet-header-green shadow-sm">
+      <div class="card-body p-4">
+        {% if notifications %}
+          <div class="list-group list-group-flush">
+            {% for notif in notifications %}
+              <a href="{{ url_for('notifications.read_notification', notif_id=notif.id) }}" 
+                 class="list-group-item list-group-item-action p-3 rounded mb-2 d-flex justify-content-between align-items-center border {% if not notif.is_read %}bg-light border-start border-4 border-success{% endif %}">
+                <div>
+                  <div class="d-flex align-items-center mb-1">
+                    {% if not notif.is_read %}
+                      <span class="badge bg-success me-2" style="font-size: 0.65rem;">NEW</span>
+                    {% endif %}
+                    <span class="fw-semibold text-dark">{{ notif.message }}</span>
+                  </div>
+                  <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ notif.created_at.strftime('%b %d, %Y · %I:%M %p') }}</small>
+                </div>
+                <div class="text-muted ms-3">
+                  <i class="bi bi-chevron-right"></i>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-bell-slash fs-1 d-block mb-3 text-secondary"></i>
+            <h5>No notifications yet</h5>
+            <p class="mb-0">You'll see notifications here when mentors respond or your application status changes.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

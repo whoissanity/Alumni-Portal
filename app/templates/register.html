@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Register — DUET Alumni Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card card-duet card-duet-header-red shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">Create Account</h4>
+        <form method="POST" action="{{ url_for('auth.register') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="name" name="name"
+                   required value="{{ name if name else '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email"
+                   required value="{{ email if email else '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password"
+                   required minlength="6">
+          </div>
+
+          <div class="mb-3">
+            <label for="department" class="form-label">Department</label>
+            <select class="form-select" id="department" name="department" required>
+              <option value="" disabled {% if not selected_dept %}selected{% endif %}>Select Department</option>
+              <option value="CSE" {% if selected_dept == 'CSE' %}selected{% endif %}>CSE</option>
+              <option value="CE" {% if selected_dept == 'CE' %}selected{% endif %}>CE</option>
+              <option value="MME" {% if selected_dept == 'MME' %}selected{% endif %}>MME</option>
+              <option value="TE" {% if selected_dept == 'TE' %}selected{% endif %}>TE</option>
+              <option value="EEE" {% if selected_dept == 'EEE' %}selected{% endif %}>EEE</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="role" class="form-label">I am a</label>
+            <select class="form-select" id="role" name="role" required>
+              <option value="student" {% if selected_role == 'student' %}selected{% endif %}>Student</option>
+              <option value="alumni"  {% if selected_role == 'alumni' %}selected{% endif %}>Alumni</option>
+            </select>
+          </div>
+
+          <div class="mb-3" id="resume-field">
+            <label for="resume" class="form-label">Resume (PDF/DOCX, required)</label>
+            <input class="form-control" type="file" id="resume" name="resume" accept=".pdf,.docx" required>
+          </div>
+
+          <button type="submit" class="btn btn-duet-red w-100">Register</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+          Already have an account? <a href="{{ url_for('auth.login') }}" class="text-danger fw-bold">Log in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
